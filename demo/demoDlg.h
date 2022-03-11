@@ -38,6 +38,8 @@ public:
 	HANDLE m_hCam;
 	//定义图像处理对象
 	MVImage m_image;
+	//定义灰度图像
+	MVImage grey_image;
 	//定义像素格式对象
 	MV_PixelFormatEnums m_PixelFormat;
 	//采集标识

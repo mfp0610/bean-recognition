@@ -215,6 +215,7 @@ void CdemoDlg::OnBnClickedOpencam()
 	MVGetHeight(m_hCam, &h);
 	MVGetPixelFormat(m_hCam, &m_PixelFormat);
 	m_image.CreateByPixelFormat(w, h, m_PixelFormat);
+	grey_image.CreateByPixelFormat(w, h, m_PixelFormat);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
@@ -287,13 +288,16 @@ void CdemoDlg::DrawImage()
 void CdemoDlg::DrawGrey()
 {
 	CRect rct;
-	GetDlgItem(pic)->GetClientRect(&rct);
+	GetDlgItem(pit)->GetClientRect(&rct);
 	int dstW = rct.Width();
 	int dstH = rct.Height();
-	CDC* pDC = GetDlgItem(pic)->GetDC();
+	CDC* pDC = GetDlgItem(pit)->GetDC();
 	{
 		pDC->SetStretchBltMode(COLORONCOLOR);
-		m_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
+		//MVImageBGRToGray(m_hCam,&m_image,&grey_image);
+		//MVImageBayerToBGREx(m_hCam,)
+		grey_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
+		//m_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
 	}
 	ReleaseDC(pDC);
 }
@@ -301,7 +305,10 @@ void CdemoDlg::DrawGrey()
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
 	MVInfo2Image(m_hCam, pInfo, &m_image);
+	//MVImageBGRToGray(m_hCam, &m_image, &m_image);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 	DrawImage();
+	DrawGrey();
 	return 0;
 	return 0;
 }

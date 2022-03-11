@@ -215,7 +215,7 @@ void CdemoDlg::OnBnClickedOpencam()
 	MVGetHeight(m_hCam, &h);
 	MVGetPixelFormat(m_hCam, &m_PixelFormat);
 	m_image.CreateByPixelFormat(w, h, m_PixelFormat);
-	grey_image.CreateByPixelFormat(w, h, m_PixelFormat);
+	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);

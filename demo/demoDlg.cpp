@@ -77,6 +77,8 @@ BEGIN_MESSAGE_MAP(CdemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_OpenCam, &CdemoDlg::OnBnClickedOpencam)
 	ON_BN_CLICKED(IDC_CloseCam, &CdemoDlg::OnBnClickedClosecam)
 	ON_BN_CLICKED(IDC_StartGrab, &CdemoDlg::OnBnClickedStartgrab)
+	ON_BN_CLICKED(IDC_recognition, &CdemoDlg::OnBnClickedrecognition)
+	ON_BN_CLICKED(IDC_classify, &CdemoDlg::OnBnClickedclassify)
 END_MESSAGE_MAP()
 
 
@@ -128,6 +130,8 @@ BOOL CdemoDlg::OnInitDialog()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(true);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(false);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
+	GetDlgItem(IDC_recognition)->EnableWindow(false);
+	GetDlgItem(IDC_classify)->EnableWindow(false);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
@@ -214,6 +218,8 @@ void CdemoDlg::OnBnClickedOpencam()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
+	GetDlgItem(IDC_recognition)->EnableWindow(true);
+	GetDlgItem(IDC_classify)->EnableWindow(true);
 }
 
 
@@ -227,6 +233,8 @@ void CdemoDlg::OnBnClickedClosecam()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(true);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(false);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
+	GetDlgItem(IDC_recognition)->EnableWindow(false);
+	GetDlgItem(IDC_classify)->EnableWindow(false);
 }
 
 
@@ -245,6 +253,8 @@ void CdemoDlg::OnBnClickedStartgrab()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(false);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(true);
+	GetDlgItem(IDC_recognition)->EnableWindow(true);
+	GetDlgItem(IDC_classify)->EnableWindow(true);
 }
 
 void CAboutDlg::OnBnClickedOpencam()
@@ -273,6 +283,21 @@ void CdemoDlg::DrawImage()
 	}
 	ReleaseDC(pDC);
 }
+
+void CdemoDlg::DrawGrey()
+{
+	CRect rct;
+	GetDlgItem(pic)->GetClientRect(&rct);
+	int dstW = rct.Width();
+	int dstH = rct.Height();
+	CDC* pDC = GetDlgItem(pic)->GetDC();
+	{
+		pDC->SetStretchBltMode(COLORONCOLOR);
+		m_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
+	}
+	ReleaseDC(pDC);
+}
+
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
 	MVInfo2Image(m_hCam, pInfo, &m_image);
@@ -302,4 +327,15 @@ void CdemoDlg::OnClose()
 	}
 	MVTerminateLib();
 	CDialog::OnClose();
+}
+
+void CdemoDlg::OnBnClickedrecognition()
+{
+	// TODO: 在此添加控件通知处理程序代码
+}
+
+
+void CdemoDlg::OnBnClickedclassify()
+{
+	// TODO: 在此添加控件通知处理程序代码
 }

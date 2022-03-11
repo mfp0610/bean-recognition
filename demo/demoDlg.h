@@ -46,6 +46,10 @@ public:
 	int OnStreamCB(MV_IMAGE_INFO* pInfo);
 	//画图
 	void DrawImage();
+	//画灰度图
+	void DrawGrey();
 	//关闭相机、释放资源
 	void OnClose();
+	afx_msg void OnBnClickedrecognition();
+	afx_msg void OnBnClickedclassify();
 };

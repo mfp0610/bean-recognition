@@ -1,2 +1,4 @@
 C:\Users\Admin\source\repos\demo\x64\Debug\demo.exe
 C:\Users\Admin\source\repos\demo\x64\Debug\demo.pdb
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\x64\Debug\demo.exe
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\x64\Debug\demo.pdb

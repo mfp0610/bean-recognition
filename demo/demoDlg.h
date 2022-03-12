@@ -52,6 +52,8 @@ public:
 	void DrawGrey();
 	//关闭相机、释放资源
 	void OnClose();
+	//
+
 	afx_msg void OnBnClickedrecognition();
 	afx_msg void OnBnClickedclassify();
 };

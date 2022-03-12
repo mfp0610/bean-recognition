@@ -11,6 +11,7 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
+#define therhold 50
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -308,6 +309,7 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 	//MVImageBGRToGray(m_hCam, &m_image, &m_image);
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 	DrawImage();
+	binary_th(&grey_image, therhold);
 	DrawGrey();
 	return 0;
 	return 0;

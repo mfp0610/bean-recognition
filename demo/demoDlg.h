@@ -5,6 +5,7 @@
 #pragma once
 #include "MVGigE.h"
 #include "MVImage.h"
+#include "binary_th.h"
 
 int __stdcall StreamCB(MV_IMAGE_INFO* pInfo, ULONG_PTR nUserVal);
 

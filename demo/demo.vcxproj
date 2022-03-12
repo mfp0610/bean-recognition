@@ -189,6 +189,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="binary_th.h" />
     <ClInclude Include="demo.h" />
     <ClInclude Include="demoDlg.h" />
     <ClInclude Include="framework.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="binary_th.cpp" />
     <ClCompile Include="demo.cpp" />
     <ClCompile Include="demoDlg.cpp" />
     <ClCompile Include="pch.cpp">

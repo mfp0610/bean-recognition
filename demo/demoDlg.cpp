@@ -311,6 +311,7 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 	DrawImage();
 	binary_th(&grey_image, therhold);
 	DrawGrey();
+	draw_Round(0, 0, 100, 100);
 	return 0;
 	return 0;
 }
@@ -347,4 +348,17 @@ void CdemoDlg::OnBnClickedrecognition()
 void CdemoDlg::OnBnClickedclassify()
 {
 	// TODO: 在此添加控件通知处理程序代码
+}
+
+void CdemoDlg::draw_Round(double x1, double y1, double x2, double y2)
+{
+	CWnd* pWin = GetDlgItem(pit);
+
+	CDC* pDC = pWin->GetDC();
+	//CDC* pDC = GetDC();
+	pDC->SelectObject(new CPen(PS_SOLID, 0, RGB(255, 0, 0)));
+
+	pDC->SelectStockObject(NULL_BRUSH);
+	pDC->Ellipse(CRect(x1, y1, x2,y2));
+	ReleaseDC(pDC);
 }

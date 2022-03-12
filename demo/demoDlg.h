@@ -53,8 +53,8 @@ public:
 	void DrawGrey();
 	//关闭相机、释放资源
 	void OnClose();
-	//
-
+	//画出边框图
+	void draw_Round(double x1, double y1, double x2, double y2);
 	afx_msg void OnBnClickedrecognition();
 	afx_msg void OnBnClickedclassify();
 };

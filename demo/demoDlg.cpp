@@ -11,7 +11,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#define therhold 50
+#define thershold 120
+#define c_epoch 20
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -217,6 +218,9 @@ void CdemoDlg::OnBnClickedOpencam()
 	MVGetPixelFormat(m_hCam, &m_PixelFormat);
 	m_image.CreateByPixelFormat(w, h, m_PixelFormat);
 	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
@@ -272,7 +276,7 @@ void CAboutDlg::OnBnClickedStartgrab()
 	
 }
 
-void CdemoDlg::DrawImage()
+void CdemoDlg::DrawImage(MVImage* img)
 {
 	CRect rct;
 	GetDlgItem(pic)->GetClientRect(&rct);
@@ -281,12 +285,12 @@ void CdemoDlg::DrawImage()
 	CDC* pDC = GetDlgItem(pic)->GetDC();
 	{
 		pDC->SetStretchBltMode(COLORONCOLOR);
-		m_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
+		img->Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
 	}
 	ReleaseDC(pDC);
 }
 
-void CdemoDlg::DrawGrey()
+void CdemoDlg::DrawImageResult(MVImage* img)
 {
 	CRect rct;
 	GetDlgItem(pit)->GetClientRect(&rct);
@@ -295,10 +299,7 @@ void CdemoDlg::DrawGrey()
 	CDC* pDC = GetDlgItem(pit)->GetDC();
 	{
 		pDC->SetStretchBltMode(COLORONCOLOR);
-		//MVImageBGRToGray(m_hCam,&m_image,&grey_image);
-		//MVImageBayerToBGREx(m_hCam,)
-		grey_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
-		//m_image.Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
+		img->Draw(pDC->GetSafeHdc(), 0, 0, dstW, dstH);
 	}
 	ReleaseDC(pDC);
 }
@@ -306,13 +307,26 @@ void CdemoDlg::DrawGrey()
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
 	MVInfo2Image(m_hCam, pInfo, &m_image);
-	//MVImageBGRToGray(m_hCam, &m_image, &m_image);
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
-	DrawImage();
-	binary_th(&grey_image, therhold);
-	DrawGrey();
+	
+	//
+	binary_th(&grey_image, thershold);
+	
+	//
+	corrode(&grey_image, &corrode_mid_image);
+	for (int i = 1; i <= c_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &corrode_image);
+		img_copy(&corrode_image, &corrode_mid_image);
+	}
+	
+	//
+	counter_detect(&grey_image,&counter_image);
+
+	DrawImage(&counter_image);
+	DrawImageResult(&corrode_image);
+	//DrawImageResult(&grey_image);
 	draw_Round(0, 0, 100, 100);
-	return 0;
 	return 0;
 }
 int __stdcall StreamCB(MV_IMAGE_INFO* pInfo,ULONG_PTR nUserVal)
@@ -342,6 +356,7 @@ void CdemoDlg::OnClose()
 void CdemoDlg::OnBnClickedrecognition()
 {
 	// TODO: 在此添加控件通知处理程序代码
+
 }
 
 
@@ -356,7 +371,7 @@ void CdemoDlg::draw_Round(double x1, double y1, double x2, double y2)
 
 	CDC* pDC = pWin->GetDC();
 	//CDC* pDC = GetDC();
-	pDC->SelectObject(new CPen(PS_SOLID, 0, RGB(255, 0, 0)));
+	pDC->SelectObject(new CPen(PS_SOLID, 0, RGB(255, 255, 255)));
 
 	pDC->SelectStockObject(NULL_BRUSH);
 	pDC->Ellipse(CRect(x1, y1, x2,y2));

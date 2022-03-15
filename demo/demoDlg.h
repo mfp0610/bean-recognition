@@ -39,8 +39,11 @@ public:
 	HANDLE m_hCam;
 	//定义图像处理对象
 	MVImage m_image;
-	//定义灰度图像
+	//定义处理过程中的图像
 	MVImage grey_image;
+	MVImage corrode_image;
+	MVImage corrode_mid_image;
+	MVImage counter_image;
 	//定义像素格式对象
 	MV_PixelFormatEnums m_PixelFormat;
 	//采集标识
@@ -48,9 +51,9 @@ public:
 	//通过回调函数获取图像数据信息
 	int OnStreamCB(MV_IMAGE_INFO* pInfo);
 	//画图
-	void DrawImage();
-	//画灰度图
-	void DrawGrey();
+	void DrawImage(MVImage* img);
+	//画右侧图
+	void DrawImageResult(MVImage* img);
 	//关闭相机、释放资源
 	void OnClose();
 	//画出边框图

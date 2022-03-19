@@ -11,8 +11,8 @@
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-#define thershold 120
-#define c_epoch 20
+#define thershold 40
+#define c_epoch 40
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -70,6 +70,7 @@ CdemoDlg::CdemoDlg(CWnd* pParent /*=nullptr*/)
 void CdemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
+	DDX_Control(pDX, IDC_EDIT1, M_edit1);
 }
 
 BEGIN_MESSAGE_MAP(CdemoDlg, CDialogEx)
@@ -132,7 +133,7 @@ BOOL CdemoDlg::OnInitDialog()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(true);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(false);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
-	GetDlgItem(IDC_recognition)->EnableWindow(false);
+	GetDlgItem(IDC_recognition)->EnableWindow(true);
 	GetDlgItem(IDC_classify)->EnableWindow(false);
 
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -220,6 +221,7 @@ void CdemoDlg::OnBnClickedOpencam()
 	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
@@ -306,27 +308,87 @@ void CdemoDlg::DrawImageResult(MVImage* img)
 
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
+	DrawImage(&m_image);
+	
 	MVInfo2Image(m_hCam, pInfo, &m_image);
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
-	
+
 	//
 	binary_th(&grey_image, thershold);
+	//DrawImageResult(&grey_image);
 	
-	//
-	corrode(&grey_image, &corrode_mid_image);
-	for (int i = 1; i <= c_epoch; i++)
+	//find the counter
+	corrode(&grey_image, &corrode_mid_image, 0);
+	for (int i = 1; i <= 4; i++)
 	{
-		corrode(&corrode_mid_image, &corrode_image);
+		corrode(&corrode_mid_image, &corrode_image, 0);
 		img_copy(&corrode_image, &corrode_mid_image);
 	}
-	
-	//
-	counter_detect(&grey_image,&counter_image);
+	counter_detect(&corrode_image, &counter_image);
+	//DrawImageResult(&corrode_image);
 
-	DrawImage(&counter_image);
-	DrawImageResult(&corrode_image);
-	//DrawImageResult(&grey_image);
-	draw_Round(0, 0, 100, 100);
+	img_inv(&corrode_image);
+	distance_trans(&corrode_image, &dis_image, 1);
+	binary_th(&dis_image, 10);
+	DrawImageResult(&dis_image);
+
+	/*int cnt = count_num(&corrode_image);
+	CString str;
+	str.Format(_T("%d"), cnt);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
+	/*corrode(&corrode_image, &corrode_mid_image, 1);
+	for (int i = 1; i <= c_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &corrode_image, 1);
+		img_copy(&corrode_image, &corrode_mid_image);
+	}
+	DrawImageResult(&corrode_image);*/
+	
+	/*int cnt = count_num(&corrode_image);
+	CString str;
+	str.Format(_T("%d"), cnt);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
+	
+		/*int w, h;
+		w = corrode_image.GetWidth();
+		h = corrode_image.GetHeight();
+
+		unsigned char* p = NULL;
+		p = (unsigned char*)corrode_image.GetBits();
+		
+		int cnt1 = 0;
+		FILE* stream1;
+		freopen_s(&stream1, "test.out", "w", stdout);
+		for (int i = 0; i < h; i++)
+		{
+			for (int j = 0; j < w; j++)
+			{
+				if ((*p) == 0)
+				{
+					cnt1++;
+					//draw_Round(double(i - 10), double(j - 10), double(i + 10), double(j + 10));
+					printf("%d %d\n", i, j);
+				}
+				p++;
+			}
+		}*/
+		
+		/*CString str;
+		str.Format(_T("%d"), cnt);
+		GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
+		/*printf("%d\n", cnt1);
+		fclose(stdout);*/
+
+	
+
+	/*CStatic* pEdit;//定义一个静态文本框实例
+	CRect rct(100, 100, 100 + 150, 100 + 50);//文本框大小
+	pEdit = new CStatic();//动态创建申请内存
+	pEdit->Create(str, WS_CHILD | WS_VISIBLE, rct, this, 8888);//动态创建
+	pEdit->ShowWindow(SW_SHOW);//显示在屏幕上*/
+
+	//DrawImageResult(&corrode_image);
+	//draw_Round(0, 0, 100, 100);
 	return 0;
 }
 int __stdcall StreamCB(MV_IMAGE_INFO* pInfo,ULONG_PTR nUserVal)
@@ -355,8 +417,52 @@ void CdemoDlg::OnClose()
 
 void CdemoDlg::OnBnClickedrecognition()
 {
-	// TODO: 在此添加控件通知处理程序代码
 
+	/*CString str;
+	double p1 = 0.09;
+	str.Format(L"%f", p1);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));
+
+	CStatic* pEdit;//定义一个静态文本框实例
+	CRect rct(100, 100, 100 + 150, 100 + 50);//文本框大小
+	pEdit = new CStatic();//动态创建申请内存
+	pEdit->Create(str, WS_CHILD | WS_VISIBLE, rct, this, 8888);//动态创建
+	pEdit->ShowWindow(SW_SHOW);//显示在屏幕上*/
+
+	/*----------------------------------------------------------------------------------*/
+	
+	// TODO: 在此添加控件通知处理程序代码
+	int w, h;
+	m_image.Load("C:\\Users\\Admin\\Desktop\\1.bmp");
+	w = m_image.GetWidth();
+	h = m_image.GetHeight();
+	//m_image.CreateByPixelFormat(w, h, PixelFormat_BayerRG16);//这里需要试一下看看是否格式是对的
+	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	/*
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+
+	//
+	binary_th(&grey_image, thershold);
+
+	//
+	corrode(&grey_image, &corrode_mid_image);
+	for (int i = 1; i <= c_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &corrode_image);
+		img_copy(&corrode_image, &corrode_mid_image);
+	}
+
+	//
+	counter_detect(&grey_image, &counter_image);
+	*/
+	//Draw_diy_Image(&m_image,w,h);
+	//Draw_diy_Image(&grey_image, w, h);
+	//DrawImageResult(&m_image);
+	
 }
 
 
@@ -368,12 +474,20 @@ void CdemoDlg::OnBnClickedclassify()
 void CdemoDlg::draw_Round(double x1, double y1, double x2, double y2)
 {
 	CWnd* pWin = GetDlgItem(pit);
-
 	CDC* pDC = pWin->GetDC();
 	//CDC* pDC = GetDC();
-	pDC->SelectObject(new CPen(PS_SOLID, 0, RGB(255, 255, 255)));
-
+	pDC->SelectObject(new CPen(PS_SOLID, 0, RGB(255, 0, 0)));
 	pDC->SelectStockObject(NULL_BRUSH);
 	pDC->Ellipse(CRect(x1, y1, x2,y2));
+	ReleaseDC(pDC);
+}
+
+void CdemoDlg::Draw_diy_Image(MVImage* img,int w,int h)
+{
+	CDC* pDC = GetDlgItem(pic)->GetDC();
+	{
+		pDC->SetStretchBltMode(COLORONCOLOR);
+		img->Draw(pDC->GetSafeHdc(), 0, 0, w/4, h/4);
+	}
 	ReleaseDC(pDC);
 }

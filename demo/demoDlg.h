@@ -7,6 +7,7 @@
 #include "MVImage.h"
 #include "binary_th.h"
 
+
 int __stdcall StreamCB(MV_IMAGE_INFO* pInfo, ULONG_PTR nUserVal);
 
 // CdemoDlg 对话框
@@ -43,6 +44,7 @@ public:
 	MVImage grey_image;
 	MVImage corrode_image;
 	MVImage corrode_mid_image;
+	MVImage dis_image;
 	MVImage counter_image;
 	//定义像素格式对象
 	MV_PixelFormatEnums m_PixelFormat;
@@ -58,6 +60,10 @@ public:
 	void OnClose();
 	//画出边框图
 	void draw_Round(double x1, double y1, double x2, double y2);
+	//画出读入的图像
+	void CdemoDlg::Draw_diy_Image(MVImage* img, int w, int h);
+
 	afx_msg void OnBnClickedrecognition();
 	afx_msg void OnBnClickedclassify();
+	CEdit M_edit1;
 };

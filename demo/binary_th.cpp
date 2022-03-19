@@ -34,6 +34,28 @@ void img_copy(MVImage* In_img, MVImage* Ou_img)
     }
 }
 
+void img_inv(MVImage* In_img)
+{
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    unsigned char* p = NULL;
+    p = (unsigned char*)In_img->GetBits();
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if (*p == 0)
+                *p = 255;
+            else
+                *p = 0;
+            p++;
+        }
+    }
+}
+
 void binary_th(MVImage* In, int th)
 {
 	int w,h;
@@ -78,7 +100,7 @@ void counter_detect(MVImage* In_img, MVImage* Ou_img)
         {
             if (i == 0 || i == h - 1 || j == 0 || j == w - 1)
             {
-                *po = 0;
+                *po = B;
                 pi++;
                 po++;
                 continue;
@@ -96,8 +118,8 @@ void counter_detect(MVImage* In_img, MVImage* Ou_img)
     }
 }
 
-//Function of Corrode
-void corrode(MVImage* In_img, MVImage* Out_img)
+//Function of single-Corrode
+void corrode(MVImage* In_img, MVImage* Out_img, int mode)
 {
     int w, h;
     w = In_img->GetWidth();
@@ -112,22 +134,33 @@ void corrode(MVImage* In_img, MVImage* Out_img)
     {
         for (int j = 0; j < w; j++)
         {
-            if (i == 0 || i == h - 1 || j == 0 || j == w - 1)
+            //if (i < 3 || i >= h - 3 || j < 3 || j >= w - 3)
+            if (i < 1 || i >= h - 1 || j < 1 || j >=  w - 1)
             {
-                *po = 0;
+                *po = W;
                 pi++;
                 po++;
                 continue;
             }
             if (*pi == W)
                 *po = W;
-            else if (*(pi - 1) == W && *(pi + 1) == W &&
+           /* else if (*(pi - 1) == W && *(pi + 1) == W &&
                 *(pi - w - 1) == W && *(pi - w) == W && *(pi - w + 1) == W &&
                 *(pi + w - 1) == W && *(pi + w) == W && *(pi + w + 1) == W)
-                *po = B;
+            {
+                if (mode) *po = B;
+                else *po = W;
+            }/**/
             else if (*(pi - 1) == W || *(pi + 1) == W ||
                 *(pi - w - 1) == W || *(pi - w) == W || *(pi - w + 1) == W ||
-                *(pi + w - 1) == W || *(pi + w) == W || *(pi + w + 1) == W)
+                *(pi + w - 1) == W || *(pi + w) == W || *(pi + w + 1) == W /*||
+                (pi - w - 2) == W || *(pi - w + 2) == W ||
+                *(pi + w - 2) == W || *(pi + w + 2) == W ||
+                *(pi - w - w) == W || *(pi - w - w - 1) == W || *(pi - w - w + 1) == W ||
+                *(pi + w + w) == W || *(pi + w + w - 1) == W || *(pi + w + w + 1) == W ||
+                *(pi - 2) == W || *(pi + 2) == W ||
+                * (pi - w - w - w) == W || *(pi + w + w + w) == W ||
+                *(pi - 3) == W || *(pi + 3) == W*/)
                 *po = W;
             else *po = B;
             pi++;
@@ -166,6 +199,7 @@ void corrode(MVImage* In_img, MVImage* Out_img)
     }
 }*/
 
+
 //得到一个像素点周围3*3矩阵的最大点
 unsigned char get_max(unsigned char* p, int w, int h)
 {
@@ -188,6 +222,100 @@ unsigned char get_max(unsigned char* p, int w, int h)
     return max;
 }
 
+/*int count_num(MVImage* In_img)
+{
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    unsigned char* p = NULL;
+    p = (unsigned char*)In_img->GetBits();
+
+    int ret = 0;
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if ((*p) == B)
+            {
+                ret++;
+                //draw_Round(i-5, j-5, i+5, j+5);
+            }
+            p++;
+        }
+    }
+    return ret;
+}*/
+
+double Distance(int x1, int y1, int x2, int y2, int type)
+{
+    return abs(x1 - x2) + abs(y1 - y2);
+}
+void distance_trans(MVImage* In_img, MVImage* Ou_img, int disty)
+{
+    int op, distance;
+
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    img_copy(In_img, Ou_img);
+
+    unsigned char* pi = NULL;
+    unsigned char* po = NULL;
+    pi = (unsigned char*)In_img->GetBits();
+    po = (unsigned char*)Ou_img->GetBits();
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if (i == 0 || j == 0 || i == h - 1)
+            {
+                pi++;
+                po++;
+                continue;
+            }
+            distance = Distance(i, j, i - 1, j - 1, disty);
+            op = min(*pi, distance + *(po - w - 1));
+            distance = Distance(i, j, i - 1, j, disty);
+            op = min(op, distance + *(po - w));
+            distance = Distance(i, j, i, j - 1, disty);
+            op = min(op, distance + *(po - 1));
+            distance = Distance(i, j, i + 1, j - 1, disty);
+            op = min(op, distance + *(po + w - 1));
+            *po = op;
+            pi++;
+            po++;
+        }
+    }
+
+    pi--;
+    po--;
+    for (int i = h - 1; i >= 0; i--)
+    {
+        for (int j = w - 1; j >= 0; j--)
+        {
+            if (i == h - 1 || j == w - 1 || i == 0)
+            {
+                pi--;
+                po--;
+                continue;
+            }
+            distance = Distance(i, j, i + 1, j, disty);
+            op = min(*pi, distance + *(po + w ));
+            distance = Distance(i, j, i + 1, j + 1, disty);
+            op = min(op, distance + *(po + w + 1));
+            distance = Distance(i, j, i, j + 1, disty);
+            op = min(op, distance + *(po + 1));
+            distance = Distance(i, j, i - 1, j + 1, disty);
+            op = min(op, distance + *(po - w + 1));
+            *po = min(*po, op);
+            pi--;
+            po--;
+        }
+    }
+}
 /* FILE* stream1;
     freopen_s(&stream1, "test.out", "w", stdout);
     printf("%d\n", *p);

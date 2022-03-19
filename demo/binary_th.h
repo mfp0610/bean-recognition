@@ -3,8 +3,9 @@
 #define WMAX 1300
 #define HMAX 980
 
-//Function of Image Copy
+//Function of Image
 void img_copy(MVImage* In_img, MVImage* Ou_img);
+void img_inv(MVImage* In_img);
 
 //阈值二值化函数
 void binary_th(MVImage* In, int th);
@@ -13,7 +14,10 @@ void binary_th(MVImage* In, int th);
 void counter_detect(MVImage* In_img, MVImage* Ou_img);
 
 //Function of Corrode
-void corrode(MVImage* In_img, MVImage* Out_img);
+void corrode(MVImage* In_img, MVImage* Out_img, int mode);
 unsigned char get_max(unsigned char* p, int w, int h);
-//void hough_circles(MVImage* pro_img);
-//void canny_counter(MVImage* In_img, MVImage* Out_img);
+
+//int count_num(MVImage* In_img);
+
+double Distance(int x1, int y1, int x2, int y2, int type);
+void distance_trans(MVImage* In_img, MVImage* Ou_img, int disty);

@@ -12,7 +12,10 @@
 #define new DEBUG_NEW
 #endif
 #define thershold 40
-#define c_epoch 40
+#define c_epoch 25
+#define e_epoch 25
+#define d_epoch 10
+#define dis_th 13
 
 
 // 用于应用程序“关于”菜单项的 CAboutDlg 对话框
@@ -221,6 +224,8 @@ void CdemoDlg::OnBnClickedOpencam()
 	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	expand_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	expand_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
@@ -308,7 +313,7 @@ void CdemoDlg::DrawImageResult(MVImage* img)
 
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
-	DrawImage(&m_image);
+	//DrawImage(&m_image);
 	
 	MVInfo2Image(m_hCam, pInfo, &m_image);
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
@@ -319,17 +324,39 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 	
 	//find the counter
 	corrode(&grey_image, &corrode_mid_image, 0);
-	for (int i = 1; i <= 4; i++)
+	for (int i = 1; i <= c_epoch; i++)
 	{
 		corrode(&corrode_mid_image, &corrode_image, 0);
 		img_copy(&corrode_image, &corrode_mid_image);
 	}
-	counter_detect(&corrode_image, &counter_image);
+
+
+	
+	expand(&corrode_image, &expand_mid_image);
+	for (int i = 1; i <= e_epoch; i++)
+	{
+		expand(&expand_mid_image, &expand_image);
+		img_copy(&expand_image, &expand_mid_image);
+	}
+	
+	//counter_detect(&corrode_image, &counter_image);
 	//DrawImageResult(&corrode_image);
 
-	img_inv(&corrode_image);
-	distance_trans(&corrode_image, &dis_image, 1);
-	binary_th(&dis_image, 10);
+	img_inv(&expand_image);
+	Subtraction(&grey_image, &expand_image, &dis_image);
+	corrode(&dis_image, &corrode_mid_image, 0);
+	for (int i = 1; i <= d_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &dis_image, 0);
+		img_copy(&dis_image, &corrode_mid_image);
+	}
+
+
+	//img_inv(&dis_image);
+	//distance_trans(&corrode_image, &dis_image, 1);
+	//binary_th(&dis_image, dis_th);
+
+	DrawImage(&grey_image);
 	DrawImageResult(&dis_image);
 
 	/*int cnt = count_num(&corrode_image);

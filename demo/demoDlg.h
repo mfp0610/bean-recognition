@@ -44,6 +44,8 @@ public:
 	MVImage grey_image;
 	MVImage corrode_image;
 	MVImage corrode_mid_image;
+	MVImage expand_image;
+	MVImage expand_mid_image;
 	MVImage dis_image;
 	MVImage counter_image;
 	//定义像素格式对象

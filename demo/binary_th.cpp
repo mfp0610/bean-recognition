@@ -199,6 +199,91 @@ void corrode(MVImage* In_img, MVImage* Out_img)
     }
 }*/
 
+//Function of expand
+void expand(MVImage* In_img, MVImage* Out_img)
+{
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    unsigned char* pi = NULL;
+    unsigned char* po = NULL;
+    pi = (unsigned char*)In_img->GetBits();
+    po = (unsigned char*)Out_img->GetBits();
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            //if (i < 3 || i >= h - 3 || j < 3 || j >= w - 3)
+            if (i < 1 || i >= h - 1 || j < 1 || j >= w - 1)
+            {
+                *po = W;
+                pi++;
+                po++;
+                continue;
+            }
+            if (*pi == B)
+                *po = B;
+            /* else if (*(pi - 1) == W && *(pi + 1) == W &&
+                 *(pi - w - 1) == W && *(pi - w) == W && *(pi - w + 1) == W &&
+                 *(pi + w - 1) == W && *(pi + w) == W && *(pi + w + 1) == W)
+             {
+                 if (mode) *po = B;
+                 else *po = W;
+             }/**/
+            else if (*(pi - 1) == B || *(pi + 1) == B ||
+                *(pi - w - 1) == B || *(pi - w) == B || *(pi - w + 1) == B ||
+                *(pi + w - 1) == B || *(pi + w) == B || *(pi + w + 1) == B /*||
+                (pi - w - 2) == W || *(pi - w + 2) == W ||
+                *(pi + w - 2) == W || *(pi + w + 2) == W ||
+                *(pi - w - w) == W || *(pi - w - w - 1) == W || *(pi - w - w + 1) == W ||
+                *(pi + w + w) == W || *(pi + w + w - 1) == W || *(pi + w + w + 1) == W ||
+                *(pi - 2) == W || *(pi + 2) == W ||
+                * (pi - w - w - w) == W || *(pi + w + w + w) == W ||
+                *(pi - 3) == W || *(pi + 3) == W*/)
+                *po = B;
+            else *po = W;
+            pi++;
+            po++;
+        }
+    }
+}
+
+//Function of Subtraction
+void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
+{
+    int w, h;
+    w = In_img1->GetWidth();
+    h = In_img1->GetHeight();
+
+    unsigned char* p1 = NULL;
+    unsigned char* p2 = NULL;
+    unsigned char* po = NULL;
+    p1 = (unsigned char*)In_img1->GetBits();
+    p2 = (unsigned char*)In_img2->GetBits();
+    po = (unsigned char*)Out_img->GetBits();
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if (((*p1) + (*p2)) > 255)
+            {
+                *po = 255;
+            }
+            else
+            {
+                *po = (*p1) + (*p2);
+            }
+            p1++;
+            p2++;
+            po++;
+        }
+    }
+
+}
+
 
 //得到一个像素点周围3*3矩阵的最大点
 unsigned char get_max(unsigned char* p, int w, int h)

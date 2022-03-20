@@ -17,6 +17,12 @@ void counter_detect(MVImage* In_img, MVImage* Ou_img);
 void corrode(MVImage* In_img, MVImage* Out_img, int mode);
 unsigned char get_max(unsigned char* p, int w, int h);
 
+//Function of expand
+void expand(MVImage* In_img, MVImage* Out_img);
+
+//Function of Subtraction
+void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img);
+
 //int count_num(MVImage* In_img);
 
 double Distance(int x1, int y1, int x2, int y2, int type);

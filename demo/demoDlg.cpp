@@ -7,7 +7,7 @@
 #include "demo.h"
 #include "demoDlg.h"
 #include "afxdialogex.h"
-
+#include "mmsystem.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -85,6 +85,8 @@ BEGIN_MESSAGE_MAP(CdemoDlg, CDialogEx)
 	ON_BN_CLICKED(IDC_StartGrab, &CdemoDlg::OnBnClickedStartgrab)
 	ON_BN_CLICKED(IDC_recognition, &CdemoDlg::OnBnClickedrecognition)
 	ON_BN_CLICKED(IDC_classify, &CdemoDlg::OnBnClickedclassify)
+	ON_WM_CTLCOLOR()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 
@@ -138,7 +140,7 @@ BOOL CdemoDlg::OnInitDialog()
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
 	GetDlgItem(IDC_recognition)->EnableWindow(true);
 	GetDlgItem(IDC_classify)->EnableWindow(false);
-
+	//PlaySound((LPCTSTR)IDR_WAVE1, AfxGetInstanceHandle(), SND_RESOURCE | SND_ASYNC);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
 }
 
@@ -180,7 +182,21 @@ void CdemoDlg::OnPaint()
 	}
 	else
 	{
-		CDialogEx::OnPaint();
+		//CDialogEx::OnPaint();
+		CPaintDC   dc(this);
+		CRect   rect;
+		GetClientRect(&rect);
+		CDC   dcMem;
+		dcMem.CreateCompatibleDC(&dc);
+		CBitmap   bmpBackground;
+		bmpBackground.LoadBitmap(IDB_BITMAP1);
+		//IDB_Bg为刚刚载入的图片对应的ID
+
+		BITMAP   bitmap;
+		bmpBackground.GetBitmap(&bitmap);
+		CBitmap* pbmpOld = dcMem.SelectObject(&bmpBackground);
+		dc.StretchBlt(0, 0, rect.Width(), rect.Height(), &dcMem, 0, 0,
+			bitmap.bmWidth, bitmap.bmHeight, SRCCOPY);
 	}
 }
 
@@ -449,9 +465,10 @@ void CdemoDlg::OnBnClickedrecognition()
 	double p1 = 0.09;
 	str.Format(L"%f", p1);
 	GetDlgItem(IDC_EDIT1)->SetWindowText((str));
-
+	*/
+	CString str="g";
 	CStatic* pEdit;//定义一个静态文本框实例
-	CRect rct(100, 100, 100 + 150, 100 + 50);//文本框大小
+	CRect rct(73, 55, 73 + 10, 55 + 30);//文本框大小
 	pEdit = new CStatic();//动态创建申请内存
 	pEdit->Create(str, WS_CHILD | WS_VISIBLE, rct, this, 8888);//动态创建
 	pEdit->ShowWindow(SW_SHOW);//显示在屏幕上*/
@@ -459,6 +476,7 @@ void CdemoDlg::OnBnClickedrecognition()
 	/*----------------------------------------------------------------------------------*/
 	
 	// TODO: 在此添加控件通知处理程序代码
+	/*
 	int w, h;
 	m_image.Load("C:\\Users\\Admin\\Desktop\\1.bmp");
 	w = m_image.GetWidth();
@@ -468,7 +486,7 @@ void CdemoDlg::OnBnClickedrecognition()
 	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
-	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);*/
 	/*
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 
@@ -517,4 +535,36 @@ void CdemoDlg::Draw_diy_Image(MVImage* img,int w,int h)
 		img->Draw(pDC->GetSafeHdc(), 0, 0, w/4, h/4);
 	}
 	ReleaseDC(pDC);
+}
+
+HBRUSH CdemoDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
+{
+	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
+
+	// TODO:  在此更改 DC 的任何特性
+	CBitmap m_bmp;   //位图
+	CBrush m_brush;  //画刷
+	m_bmp.LoadBitmap(MAKEINTRESOURCE(IDB_BITMAP1));    //这里将位图加载进资源后，再Load
+	m_brush.CreatePatternBrush(&m_bmp);
+	if (nCtlColor == CTLCOLOR_DLG)
+	{
+		return m_brush;
+	}
+
+
+
+
+	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
+	return hbr;
+}
+
+//BOOL PlaySound(LPCSTR lpszSound, HMODULE hmod, UINT fuSound);
+int CdemoDlg::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CDialogEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  在此添加您专用的创建代码
+	PlaySound((LPCTSTR)IDR_WAVE1, AfxGetInstanceHandle(), SND_RESOURCE | SND_ASYNC);
+	return 0;
 }

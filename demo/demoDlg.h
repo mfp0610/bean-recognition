@@ -68,4 +68,6 @@ public:
 	afx_msg void OnBnClickedrecognition();
 	afx_msg void OnBnClickedclassify();
 	CEdit M_edit1;
+	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

@@ -1,6 +1,7 @@
 #include "pch.h"
 #include "binary_th.h"
 #include "stdio.h"
+//#include <queue>
 #define INF 0x7f7f7f
 #define W 255
 #define B 0
@@ -9,6 +10,8 @@ double gradXY[HMAX][WMAX];
 double theta[HMAX][WMAX];
 double LMV_dst[HMAX][WMAX];
 MVImage grad_img, theta_img;
+
+//using namespace std;
 
 void img_copy(MVImage* In_img, MVImage* Ou_img)
 {
@@ -167,37 +170,7 @@ void corrode(MVImage* In_img, MVImage* Out_img, int mode)
             po++;
         }
     }
-}/*
-void corrode(MVImage* In_img, MVImage* Out_img)
-{
-    int w, h;
-    w = In_img->GetWidth();
-    h = In_img->GetHeight();
-
-    unsigned char* pi = NULL;
-    unsigned char* po = NULL;
-    pi = (unsigned char*)In_img->GetBits();
-    po = (unsigned char*)Out_img->GetBits();
-
-    for (int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            if (i == 0 || i == h - 1 || j == 0 || j == w - 1)
-            {
-                *po = 0;
-                pi++;
-                po++;
-                continue;
-            }
-
-            *po = get_max(pi, w, h);
-
-            pi++;
-            po++;
-        }
-    }
-}*/
+}
 
 //Function of expand
 void expand(MVImage* In_img, MVImage* Out_img)
@@ -284,6 +257,66 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
 
 }
 
+//Function of 
+/*int count_num(MVImage* In_img)
+{
+    int ret = 0;
+    int vis[1300][1300];
+    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };
+    queue<int> q;
+
+    MVImage cp_img;
+    img_copy(In_img, &cp_img);
+    
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    unsigned char* p = NULL;
+    unsigned char* pc = NULL;
+    p = (unsigned char*)In_img->GetBits();
+    pc = (unsigned char*)cp_img.GetBits();
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if ((*pc) == B)
+            {
+                ret++;
+                memset(vis, 0, sizeof(vis));
+
+                int bs = i * w + j;
+                q.push(bs);
+                vis[i][j] = 1;
+                
+                while (!q.empty())
+                {
+                    int ps = q.front();
+                    int x = ps / w, y = ps % w;
+                    q.pop();
+                    for (int k = 0; k < 4; k++)
+                    {
+                        int nx = x + dir[k][0], ny = y + dir[k][1];
+                        int ns = nx * w + ny;
+                        if (nx < 0 || nx >= h || ny < 0 || ny >= w)
+                            continue;
+                        if (*(pc + bs + ns) == W)
+                            continue;
+                        *(pc + bs + ns) == B;
+                        q.push(ns);
+                    }
+
+                }
+
+            }
+            p++;
+            pc++;
+        }
+    }
+
+}*/
+
 
 //得到一个像素点周围3*3矩阵的最大点
 unsigned char get_max(unsigned char* p, int w, int h)
@@ -306,32 +339,6 @@ unsigned char get_max(unsigned char* p, int w, int h)
     p1 = p;
     return max;
 }
-
-/*int count_num(MVImage* In_img)
-{
-    int w, h;
-    w = In_img->GetWidth();
-    h = In_img->GetHeight();
-
-    unsigned char* p = NULL;
-    p = (unsigned char*)In_img->GetBits();
-
-    int ret = 0;
-
-    for (int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            if ((*p) == B)
-            {
-                ret++;
-                //draw_Round(i-5, j-5, i+5, j+5);
-            }
-            p++;
-        }
-    }
-    return ret;
-}*/
 
 double Distance(int x1, int y1, int x2, int y2, int type)
 {

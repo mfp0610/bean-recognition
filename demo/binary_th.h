@@ -27,3 +27,5 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img);
 
 double Distance(int x1, int y1, int x2, int y2, int type);
 void distance_trans(MVImage* In_img, MVImage* Ou_img, int disty);
+
+//int count_num(MVImage* In_img);

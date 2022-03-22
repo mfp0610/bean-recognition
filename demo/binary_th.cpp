@@ -1,17 +1,17 @@
 #include "pch.h"
 #include "binary_th.h"
 #include "stdio.h"
-//#include <queue>
 #define INF 0x7f7f7f
+#define NSMAX 1000010
 #define W 255
 #define B 0
 
 double gradXY[HMAX][WMAX];
 double theta[HMAX][WMAX];
 double LMV_dst[HMAX][WMAX];
-MVImage grad_img, theta_img;
 
-//using namespace std;
+int vis[1300][1300];
+int q[NSMAX], qhd=0, qtl=-1;
 
 void img_copy(MVImage* In_img, MVImage* Ou_img)
 {
@@ -258,15 +258,12 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
 }
 
 //Function of 
-/*int count_num(MVImage* In_img)
+int count_num(MVImage* In_img, MVImage* cp_img)
 {
     int ret = 0;
-    int vis[1300][1300];
     int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };
-    queue<int> q;
 
-    MVImage cp_img;
-    img_copy(In_img, &cp_img);
+    img_copy(In_img, cp_img);
     
     int w, h;
     w = In_img->GetWidth();
@@ -275,7 +272,7 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
     unsigned char* p = NULL;
     unsigned char* pc = NULL;
     p = (unsigned char*)In_img->GetBits();
-    pc = (unsigned char*)cp_img.GetBits();
+    pc = (unsigned char*)cp_img->GetBits();
 
     for (int i = 0; i < h; i++)
     {
@@ -287,24 +284,29 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
                 memset(vis, 0, sizeof(vis));
 
                 int bs = i * w + j;
-                q.push(bs);
+                q[++qtl]=bs;
                 vis[i][j] = 1;
                 
-                while (!q.empty())
+                while (qhd<=qtl)
                 {
-                    int ps = q.front();
+                    int ps = q[qhd];
                     int x = ps / w, y = ps % w;
-                    q.pop();
+                    qhd++;
                     for (int k = 0; k < 4; k++)
                     {
                         int nx = x + dir[k][0], ny = y + dir[k][1];
                         int ns = nx * w + ny;
                         if (nx < 0 || nx >= h || ny < 0 || ny >= w)
                             continue;
-                        if (*(pc + bs + ns) == W)
+                        if (*(pc - bs + ns) == W)
                             continue;
-                        *(pc + bs + ns) == B;
-                        q.push(ns);
+                        *(pc - bs + ns) = W;
+                        q[++qtl] = ns;
+                        vis[nx][ny] = 1;
+                        /*FILE* stream1;
+                        freopen_s(&stream1, "test.out", "a", stdout);
+                        printf("%d %d  %d %d %d %d %d\n",i,j,k,nx,ny,qhd,qtl);
+                        fclose(stdout);*/
                     }
 
                 }
@@ -314,8 +316,9 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
             pc++;
         }
     }
+    return ret;
 
-}*/
+}
 
 
 //得到一个像素点周围3*3矩阵的最大点

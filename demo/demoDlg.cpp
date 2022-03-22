@@ -238,11 +238,13 @@ void CdemoDlg::OnBnClickedOpencam()
 	MVGetPixelFormat(m_hCam, &m_PixelFormat);
 	m_image.CreateByPixelFormat(w, h, m_PixelFormat);
 	grey_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	grey_counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	expand_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	expand_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	cp_dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
@@ -329,51 +331,11 @@ void CdemoDlg::DrawImageResult(MVImage* img)
 
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
+	MVInfo2Image(m_hCam, pInfo, &m_image);
 	//DrawImage(&m_image);
 	
-	MVInfo2Image(m_hCam, pInfo, &m_image);
-	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
-
-	//
-	binary_th(&grey_image, thershold);
+	
 	//DrawImageResult(&grey_image);
-	
-	//find the counter
-	corrode(&grey_image, &corrode_mid_image, 0);
-	for (int i = 1; i <= c_epoch; i++)
-	{
-		corrode(&corrode_mid_image, &corrode_image, 0);
-		img_copy(&corrode_image, &corrode_mid_image);
-	}
-
-
-	
-	expand(&corrode_image, &expand_mid_image);
-	for (int i = 1; i <= e_epoch; i++)
-	{
-		expand(&expand_mid_image, &expand_image);
-		img_copy(&expand_image, &expand_mid_image);
-	}
-	
-	//counter_detect(&corrode_image, &counter_image);
-	//DrawImageResult(&corrode_image);
-
-	img_inv(&expand_image);
-	Subtraction(&grey_image, &expand_image, &dis_image);
-	corrode(&dis_image, &corrode_mid_image, 0);
-	for (int i = 1; i <= d_epoch; i++)
-	{
-		corrode(&corrode_mid_image, &dis_image, 0);
-		img_copy(&dis_image, &corrode_mid_image);
-	}
-
-
-	//img_inv(&dis_image);
-	//distance_trans(&corrode_image, &dis_image, 1);
-	//binary_th(&dis_image, dis_th);
-
-	DrawImage(&grey_image);
-	DrawImageResult(&dis_image);
 
 	/*int cnt = count_num(&corrode_image);
 	CString str;
@@ -466,7 +428,7 @@ void CdemoDlg::OnBnClickedrecognition()
 	str.Format(L"%f", p1);
 	GetDlgItem(IDC_EDIT1)->SetWindowText((str));
 	*/
-	CString str="g";
+	/*CString str="g";
 	CStatic* pEdit;//定义一个静态文本框实例
 	CRect rct(73, 55, 73 + 10, 55 + 30);//文本框大小
 	pEdit = new CStatic();//动态创建申请内存
@@ -507,6 +469,49 @@ void CdemoDlg::OnBnClickedrecognition()
 	//Draw_diy_Image(&m_image,w,h);
 	//Draw_diy_Image(&grey_image, w, h);
 	//DrawImageResult(&m_image);
+	//find the counter
+
+	//counter_detect(&corrode_image, &counter_image);
+	//DrawImageResult(&corrode_image);
+
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	binary_th(&grey_image, thershold);
+
+	corrode(&grey_image, &corrode_mid_image, 0);
+	for (int i = 1; i <= c_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &corrode_image, 0);
+		img_copy(&corrode_image, &corrode_mid_image);
+	}
+
+	expand(&corrode_image, &expand_mid_image);
+	for (int i = 1; i <= e_epoch; i++)
+	{
+		expand(&expand_mid_image, &expand_image);
+		img_copy(&expand_image, &expand_mid_image);
+	}
+
+	img_inv(&expand_image);//expand_image为黄豆图像
+	Subtraction(&grey_image, &expand_image, &dis_image);
+	corrode(&dis_image, &corrode_mid_image, 0);
+	for (int i = 1; i <= d_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &dis_image, 0);
+		img_copy(&dis_image, &corrode_mid_image);
+	}
+	//dis_image为绿豆图像
+	/*img_copy(&dis_image,&cp_dis_image);
+	int cnt_gb = count_num(&dis_image,&cp_dis_image);
+	CString str;
+	str.Format(_T("%d"), cnt_gb);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
+
+	//img_inv(&dis_image);
+	//distance_trans(&corrode_image, &dis_image, 1);
+	//binary_th(&dis_image, dis_th);
+
+	DrawImage(&expand_image);
+	DrawImageResult(&dis_image);
 	
 }
 
@@ -514,6 +519,13 @@ void CdemoDlg::OnBnClickedrecognition()
 void CdemoDlg::OnBnClickedclassify()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	binary_th(&grey_image, thershold);
+
+	counter_detect(&grey_image, &counter_image);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	Subtraction(&grey_image, &counter_image, &grey_counter_image);
+	DrawImageResult(&grey_counter_image);
 }
 
 void CdemoDlg::draw_Round(double x1, double y1, double x2, double y2)

@@ -41,12 +41,15 @@ public:
 	//定义图像处理对象
 	MVImage m_image;
 	//定义处理过程中的图像
+	//In progress of finding the counter
 	MVImage grey_image;
+	MVImage grey_counter_image;
 	MVImage corrode_image;
 	MVImage corrode_mid_image;
 	MVImage expand_image;
 	MVImage expand_mid_image;
 	MVImage dis_image;
+	MVImage cp_dis_image;
 	MVImage counter_image;
 	//定义像素格式对象
 	MV_PixelFormatEnums m_PixelFormat;

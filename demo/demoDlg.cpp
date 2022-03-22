@@ -66,6 +66,7 @@ CdemoDlg::CdemoDlg(CWnd* pParent /*=nullptr*/)
 	: CDialogEx(IDD_DEMO_DIALOG, pParent)
 	, m_bRun(FALSE)
 	, m_hCam(NULL)
+
 {
 	m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 }
@@ -74,6 +75,7 @@ void CdemoDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialogEx::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_EDIT1, M_edit1);
+	DDX_Control(pDX, IDC_theme, m_editFont);
 }
 
 BEGIN_MESSAGE_MAP(CdemoDlg, CDialogEx)
@@ -120,6 +122,13 @@ BOOL CdemoDlg::OnInitDialog()
 	//  执行此操作
 	SetIcon(m_hIcon, TRUE);			// 设置大图标
 	SetIcon(m_hIcon, FALSE);		// 设置小图标
+
+		 //设置静态文本字体大小
+	CFont m_Font;
+	m_Font.CreatePointFont(800, _T("宋体"), NULL);
+	m_editFont.SetFont(&m_Font, true);
+
+
 
 	// TODO: 在此添加额外的初始化代码
 	MVSTATUS_CODES r;
@@ -554,6 +563,26 @@ HBRUSH CdemoDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	// TODO:  在此更改 DC 的任何特性
+
+	if (pWnd->GetDlgCtrlID() == IDC_theme)// IDC_Display为所选文本框ID
+	{
+
+		pDC->SetTextColor(RGB(47, 79, 79));//设置字体颜色
+
+		//pDC->SetBkColor(RGB(0, 255, 0));//设置背景颜色
+
+		pDC->SetBkMode(TRANSPARENT);//设置背景透明
+
+	}
+	if (nCtlColor == CTLCOLOR_STATIC)
+	 {
+	
+		    pDC->SetTextColor(RGB(173, 276, 230));//设置字体颜色
+		
+		    //pDC->SetBkColor(RGB(255, 0, 0));//设置背景颜色
+			pDC->SetBkMode(TRANSPARENT);//设置背景透明
+		
+	}
 	CBitmap m_bmp;   //位图
 	CBrush m_brush;  //画刷
 	m_bmp.LoadBitmap(MAKEINTRESOURCE(IDB_BITMAP1));    //这里将位图加载进资源后，再Load
@@ -562,9 +591,8 @@ HBRUSH CdemoDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	{
 		return m_brush;
 	}
-
-
-
+	
+	
 
 	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
 	return hbr;

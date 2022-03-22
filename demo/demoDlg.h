@@ -36,6 +36,7 @@ public:
 	afx_msg void OnBnClickedOpencam();
 	afx_msg void OnBnClickedClosecam();
 	afx_msg void OnBnClickedStartgrab();
+	CFont* m_Font;//在构造函数中要初始化
 	//定义相机句柄对象
 	HANDLE m_hCam;
 	//定义图像处理对象
@@ -73,4 +74,5 @@ public:
 	CEdit M_edit1;
 	afx_msg HBRUSH OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor);
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	CStatic m_editFont;
 };

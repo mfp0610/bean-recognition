@@ -252,9 +252,12 @@ void CdemoDlg::OnBnClickedOpencam()
 	corrode_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	expand_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	expand_mid_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
-	dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
-	cp_dis_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	counter_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	green_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	yellow_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	cp_green_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	cp_yellow_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	final_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
@@ -341,7 +344,7 @@ void CdemoDlg::DrawImageResult(MVImage* img)
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
 	MVInfo2Image(m_hCam, pInfo, &m_image);
-	//DrawImage(&m_image);
+	DrawImage(&m_image); //debugging
 	
 	
 	//DrawImageResult(&grey_image);
@@ -492,7 +495,6 @@ void CdemoDlg::OnBnClickedrecognition()
 		corrode(&corrode_mid_image, &corrode_image, 0);
 		img_copy(&corrode_image, &corrode_mid_image);
 	}
-
 	expand(&corrode_image, &expand_mid_image);
 	for (int i = 1; i <= e_epoch; i++)
 	{
@@ -500,30 +502,42 @@ void CdemoDlg::OnBnClickedrecognition()
 		img_copy(&expand_image, &expand_mid_image);
 	}
 
-	img_inv(&expand_image);//expand_image为黄豆图像
-	Subtraction(&grey_image, &expand_image, &dis_image);
-	corrode(&dis_image, &corrode_mid_image, 0);
+	img_copy(&expand_image, &yellow_image);//expand_image为黄豆图像
+	img_inv(&expand_image);
+
+	Subtraction(&grey_image, &expand_image, &green_image);
+	corrode(&green_image, &corrode_mid_image, 0);
 	for (int i = 1; i <= d_epoch; i++)
 	{
-		corrode(&corrode_mid_image, &dis_image, 0);
-		img_copy(&dis_image, &corrode_mid_image);
+		corrode(&corrode_mid_image, &green_image, 0);
+		img_copy(&green_image, &corrode_mid_image);
 	}
-	//dis_image为绿豆图像
-	/*img_copy(&dis_image,&cp_dis_image);
-	int cnt_gb = count_num(&dis_image,&cp_dis_image);
+	//green_image为绿豆图像
+	
+	img_copy(&green_image,&cp_green_image);
+	img_copy(&yellow_image, &cp_yellow_image);
+	int cnt_gb = count_num(&green_image, &cp_green_image, 0);
+	int cnt_yb = count_num(&yellow_image, &cp_yellow_image, 1);
 	CString str;
+	str.Format(_T("%d"), cnt_yb);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));
 	str.Format(_T("%d"), cnt_gb);
-	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
+	GetDlgItem(IDC_EDIT2)->SetWindowText((str));
 
-	//img_inv(&dis_image);
-	//distance_trans(&corrode_image, &dis_image, 1);
-	//binary_th(&dis_image, dis_th);
+	//debug
+	/*DrawImage(&yellow_image);
+	DrawImageResult(&green_image);*/
 
-	DrawImage(&expand_image);
-	DrawImageResult(&dis_image);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	img_copy(&grey_image, &final_image);
+	get_final(&final_image);
+	DrawImageResult(&final_image);
+	
+	//img_inv(&green_image);
+	//distance_trans(&corrode_image, &green_image, 1);
+	//binary_th(&green_image, dis_th);
 	
 }
-
 
 void CdemoDlg::OnBnClickedclassify()
 {
@@ -563,25 +577,18 @@ HBRUSH CdemoDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 	HBRUSH hbr = CDialogEx::OnCtlColor(pDC, pWnd, nCtlColor);
 
 	// TODO:  在此更改 DC 的任何特性
-
 	if (pWnd->GetDlgCtrlID() == IDC_theme)// IDC_Display为所选文本框ID
 	{
-
 		pDC->SetTextColor(RGB(47, 79, 79));//设置字体颜色
-
 		//pDC->SetBkColor(RGB(0, 255, 0));//设置背景颜色
-
 		pDC->SetBkMode(TRANSPARENT);//设置背景透明
 
 	}
 	if (nCtlColor == CTLCOLOR_STATIC)
-	 {
-	
-		    pDC->SetTextColor(RGB(173, 276, 230));//设置字体颜色
-		
-		    //pDC->SetBkColor(RGB(255, 0, 0));//设置背景颜色
-			pDC->SetBkMode(TRANSPARENT);//设置背景透明
-		
+	{
+		pDC->SetTextColor(RGB(173, 276, 230));//设置字体颜色
+		//pDC->SetBkColor(RGB(255, 0, 0));//设置背景颜色
+		pDC->SetBkMode(TRANSPARENT);//设置背景透明
 	}
 	CBitmap m_bmp;   //位图
 	CBrush m_brush;  //画刷
@@ -592,8 +599,6 @@ HBRUSH CdemoDlg::OnCtlColor(CDC* pDC, CWnd* pWnd, UINT nCtlColor)
 		return m_brush;
 	}
 	
-	
-
 	// TODO:  如果默认的不是所需画笔，则返回另一个画笔
 	return hbr;
 }

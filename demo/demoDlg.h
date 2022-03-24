@@ -48,6 +48,7 @@ public:
 	MVImage corrode_image;
 	MVImage corrode_mid_image;
 	MVImage expand_image;
+
 	MVImage expand_mid_image;
 	MVImage counter_image;
 
@@ -55,8 +56,10 @@ public:
 	MVImage yellow_image;
 	MVImage cp_green_image;
 	MVImage cp_yellow_image;
+
 	//
 	MVImage final_image;
+	MVImage color_image;
 	//定义像素格式对象
 	MV_PixelFormatEnums m_PixelFormat;
 	//采集标识
@@ -73,6 +76,9 @@ public:
 	void draw_Round(double x1, double y1, double x2, double y2);
 	//画出读入的图像
 	void CdemoDlg::Draw_diy_Image(MVImage* img, int w, int h);
+	//给不同颜色的豆子上色
+	void CdemoDlg::Add_color(MVImage* yimg, MVImage* gimg, MVImage* oimg);
+
 
 	afx_msg void OnBnClickedrecognition();
 	afx_msg void OnBnClickedclassify();

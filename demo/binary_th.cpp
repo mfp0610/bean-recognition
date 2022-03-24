@@ -1,15 +1,16 @@
 #include "pch.h"
 #include "binary_th.h"
 #include "stdio.h"
+
 #define INF 0x7f7f7f
 #define NSMAX 1000010
-#define DM 500
+#define DM 10000
+
 #define W 255
 #define B 0
 
-double gradXY[HMAX][WMAX];
-double theta[HMAX][WMAX];
-double LMV_dst[HMAX][WMAX];
+#define gth 15
+#define th_dis 120//100
 
 int vis[1300][1300];
 int q[NSMAX], qhd = 0, qtl = -1;
@@ -265,13 +266,14 @@ void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
 // type: 0 green, 1 yellow;
 int count_num(MVImage* In_img, MVImage* cp_img, int type)
 {
+    qhd = 0, qtl = -1;
     if (type == 0)
         gcnt = 0;
-    else
+    else if (type==1)
         ycnt = 0;
     
-    int ret = 0;
-    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };
+    int ret = 0;//返回值
+    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };//遍历的方向
 
     img_copy(In_img, cp_img);
 
@@ -284,14 +286,16 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
     p = (unsigned char*)In_img->GetBits();
     pc = (unsigned char*)cp_img->GetBits();
 
+
+    //FILE* stream;
+    //freopen_s(&stream, "db.out", "a", stdout);
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)
         {
             if ((*pc) == B)
             {
-                ret++;
-                memset(vis, 0, sizeof(vis));
+                memset(vis, 0, sizeof(vis));//访问数组清空
 
                 int bs = i * w + j;
                 q[++qtl] = bs;
@@ -323,7 +327,7 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
                     }
 
                 }
-                if (type == 0)
+                if (type == 0 && pl >= gth)
                 {
                     double sumx = 0;
                     double sumy = 0;
@@ -334,12 +338,28 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
                     }
                     sumx /= pl;
                     sumy /= pl;
-                    qg[gcnt][0] = sumx;
-                    qg[gcnt][1] = sumy;
+                    
+                    //去除切割断点
+                    int flag = 0;
+                    for (int i = 0; i < gcnt; i++)
+                    {
+                        if (pdis(int(sumx), int(sumy), qg[i][0], qg[i][1]) <= th_dis)
+                        {
+                            flag = 1;
+                            break;
+                        }
+                    }
+                    if (flag) continue;
+
+                    qg[gcnt][0] = int(sumx);
+                    qg[gcnt][1] = int(sumy);
+                    
                     gcnt++;
+                    ret++;
                 }
-                else
+                else if(type == 1)
                 {
+                    //printf("%p %p %d %d\n", qy, &ycnt, ycnt, ret);
                     double sumx = 0;
                     double sumy = 0;
                     for (int i = 0; i < pl; i++)
@@ -349,9 +369,11 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
                     }
                     sumx /= pl;
                     sumy /= pl;
-                    qy[ycnt][0] = sumx;
-                    qy[ycnt][1] = sumy;
+                    qy[ycnt][0] = int(sumx);
+                    qy[ycnt][1] = int(sumy);
                     ycnt++;
+                    ret++;
+                    //printf("%p %p %d %d %d %d\n", qy,&ycnt, ycnt,ret,int(sumx),int(sumy));
                 }
 
             }
@@ -359,13 +381,14 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
             pc++;
         }
     }
+    //fclose(stdout);
     /*if (type == 0)
     {
         FILE* stream1;
         freopen_s(&stream1, "test1.out", "w", stdout);
         printf("%d\n", gcnt);
         for (int i = 0; i < gcnt; i++)
-            printf("%d %d\n", qg[i][0],qg[i][1]);
+            printf("%d %d\n", qg[i][0], qg[i][1]);
         fclose(stdout);
     }
     if (type == 1)
@@ -381,6 +404,15 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
     return ret;
 }
 
+int pdis(int x1, int y1, int x2, int y2)
+{
+    return (x1-x2)*(x1-x2)+(y1-y2)*(y1-y2);
+}
+
+
+
+
+
 //Function of Subtraction
 void get_final(MVImage* In_img)
 {
@@ -391,17 +423,33 @@ void get_final(MVImage* In_img)
     unsigned char* p = NULL;
     p = (unsigned char*)In_img->GetBits();
 
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            //*(pDst + (i)*lineByte + j) =255;
+            int ps = 3 * ((i) * w + j);
+            *(p + ps ) = 0;
+            *(p + ps + 1) = 0;
+            *(p + ps + 2) = 0;
+        }
+    }
+
     for (int i = 0; i < gcnt; i++)
     {
         int px = qg[i][0], py = qg[i][1];
-        int ps = px * w + py;
+        int ps = (px * w + py)*3;
 
-        for (int j = 0; j < 10; j++)
+        for (int j = 0; j < 60; j++)
         {
-            for (int r = 0; r < 10; r++)
+            for (int r = 0; r < 60; r++)
             {
-                int s1 = (j - 5) * w + r - 5;
-                *(p + ps + s1) = W;
+                int s1 = ((j - 30) * w  + r - 30)*3;
+                *(p + ps + s1) = 255;
+                *(p + ps + s1+1) = 0;
+                *(p + ps + s1+2) = 0;
+
+
             }
         }
 
@@ -409,114 +457,41 @@ void get_final(MVImage* In_img)
     for (int i = 0; i < ycnt; i++)
     {
         int px = qy[i][0], py = qy[i][1];
-        int ps = px * w + py;
+        int ps = (px * w + py) * 3;
+        for (int j = 0; j < 100; j++)
+        {
+            for (int r = 0; r < 100; r++)
+            {
+                int s1 = ((j - 50) * w + r - 50) * 3;
+                *(p + ps + s1) = 0;
+                *(p + ps + s1 + 1) = 0;
+                *(p + ps + s1 + 2) = 255;
+            }
+        }
+        /*
         for (int j = 0; j < 3; j++)
         {
             for (int r = 0; r <= 30; r++)
             {
                 int s1 = (j - 1) * w + r - 15;
                 //int s2 = (r - 15) * w + (j - 1);
+                if (ps + s1 <= 0||ps+s1>w*h)
+                {
+                    continue;
+                }
                 *(p + ps + s1) = W;
                 //*(p + ps + s2) = W;
             }
+
         }
+        */
     }
+
+
+
+
 
 }
-
-//Function of 
-/*int count_num(MVImage* In_img, MVImage* cp_img)
-{
-    int ret = 0;
-    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };
-
-    img_copy(In_img, cp_img);
-    
-    int w, h;
-    w = In_img->GetWidth();
-    h = In_img->GetHeight();
-
-    unsigned char* p = NULL;
-    unsigned char* pc = NULL;
-    p = (unsigned char*)In_img->GetBits();
-    pc = (unsigned char*)cp_img->GetBits();
-
-    for (int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            if ((*pc) == B)
-            {
-                ret++;
-                memset(vis, 0, sizeof(vis));
-
-                int bs = i * w + j;
-                q[++qtl]=bs;
-                vis[i][j] = 1;
-                
-                while (qhd<=qtl)
-                {
-                    int ps = q[qhd];
-                    int x = ps / w, y = ps % w;
-                    qhd++;
-                    for (int k = 0; k < 4; k++)
-                    {
-                        int nx = x + dir[k][0], ny = y + dir[k][1];
-                        int ns = nx * w + ny;
-                        if (nx < 0 || nx >= h || ny < 0 || ny >= w)
-                            continue;
-                        if (*(pc - bs + ns) == W)
-                            continue;
-                        *(pc - bs + ns) = W;
-                        q[++qtl] = ns;
-                        vis[nx][ny] = 1;
-                    }
-
-                }
-
-            }
-            p++;
-            pc++;
-        }
-    }
-    return ret;
-
-}*/
-
-//Function of Subtraction
-/*void Subtraction(MVImage* In_img1, MVImage* In_img2, MVImage* Out_img)
-{
-    int w, h;
-    w = In_img1->GetWidth();
-    h = In_img1->GetHeight();
-
-    unsigned char* p1 = NULL;
-    unsigned char* p2 = NULL;
-    unsigned char* po = NULL;
-    p1 = (unsigned char*)In_img1->GetBits();
-    p2 = (unsigned char*)In_img2->GetBits();
-    po = (unsigned char*)Out_img->GetBits();
-
-    for (int i = 0; i < h; i++)
-    {
-        for (int j = 0; j < w; j++)
-        {
-            if (((*p1) + (*p2)) > 255)
-            {
-                *po = 255;
-            }
-            else
-            {
-                *po = (*p1) + (*p2);
-            }
-            p1++;
-            p2++;
-            po++;
-        }
-    }
-
-}*/
-
 
 //得到一个像素点周围3*3矩阵的最大点
 unsigned char get_max(unsigned char* p, int w, int h)
@@ -608,6 +583,76 @@ void distance_trans(MVImage* In_img, MVImage* Ou_img, int disty)
         }
     }
 }
+
+
+int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int type)//pDst原图，ptemp是处理后
+{
+
+    int i, j, channel = 0;
+    int offset = 0;
+    if (type == 0)
+    {
+        for (i = 0; i < 960; i++)
+        {
+            for (j = 0; j < 1280; j++)
+            {
+                    //*(pDst + (i)*lineByte + j) =255;
+                    offset = 3 * ((i) * 1280 + j);
+                    *(pDst + offset) = 0;  //R
+                    *(pDst + offset + 1) = 0;  //G
+                    *(pDst + offset + 2) = 0;  //B
+            }
+        }
+    }
+    //公式 
+    if (strcmp(color, "red") == 0)
+    {
+        for (i = 0; i < 960; i++)
+        {
+            for (j = 0; j < 1280; j++)
+            {
+                if (*(ptemp + (i)* 1280 + j) == 0)
+                {
+
+                    //*(pDst + (i)*lineByte + j) =255;
+                    offset = 3 * ((i)* 1280 + j);
+                    *(pDst + offset) = 255;  //R
+                    *(pDst + offset + 1) = 0;  //G
+                    *(pDst + offset + 2) = 0;  //B
+                }
+
+            }
+
+            //将灰度图信息写入
+            //fwrite(ImgData2, j, 1, fp2);
+        }
+    }
+    if (strcmp(color, "green") == 0)
+    {
+        for (i = 0; i < 960; i++)
+        {
+            for (j = 0; j < 1280; j++)
+            {
+                if (*(ptemp + (i)* 1280 + j) == 0)
+                {
+
+                    //*(pDst + (i)*lineByte + j) =255;
+                    offset = 3 * ((i)* 1280 + j);
+                    *(pDst + offset) = 0;  //R
+                    *(pDst + offset + 1) = 255;  //G
+                    *(pDst + offset + 2) = 0;  //B
+                }
+
+            }
+
+            //将灰度图信息写入
+            //fwrite(ImgData2, j, 1, fp2);
+        }
+    }
+
+    return 0;
+}
+
 /* FILE* stream1;
     freopen_s(&stream1, "test.out", "w", stdout);
     printf("%d\n", *p);

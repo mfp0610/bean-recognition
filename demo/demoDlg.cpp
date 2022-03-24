@@ -12,9 +12,9 @@
 #define new DEBUG_NEW
 #endif
 #define thershold 40
-#define c_epoch 25
-#define e_epoch 25
-#define d_epoch 10
+#define c_epoch 24//全图腐蚀，去除绿豆，得到黄豆图
+#define e_epoch 17//腐蚀后的黄豆图，膨胀，为了去和原图相减，但是还有残留边
+#define d_epoch 12//为了去除残留边，再进行腐蚀
 #define dis_th 13
 
 
@@ -147,7 +147,7 @@ BOOL CdemoDlg::OnInitDialog()
 	GetDlgItem(IDC_OpenCam)->EnableWindow(true);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(false);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
-	GetDlgItem(IDC_recognition)->EnableWindow(true);
+	GetDlgItem(IDC_recognition)->EnableWindow(false);
 	GetDlgItem(IDC_classify)->EnableWindow(false);
 	//PlaySound((LPCTSTR)IDR_WAVE1, AfxGetInstanceHandle(), SND_RESOURCE | SND_ASYNC);
 	return TRUE;  // 除非将焦点设置到控件，否则返回 TRUE
@@ -257,12 +257,13 @@ void CdemoDlg::OnBnClickedOpencam()
 	yellow_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	cp_green_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
 	cp_yellow_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
-	final_image.CreateByPixelFormat(w, h, PixelFormat_Mono8);
+	final_image.CreateByPixelFormat(w, h, m_PixelFormat);
+	color_image.CreateByPixelFormat(w, h, m_PixelFormat);
 	GetDlgItem(IDC_OpenCam)->EnableWindow(false);
 	GetDlgItem(IDC_StartGrab)->EnableWindow(true);
 	GetDlgItem(IDC_CloseCam)->EnableWindow(false);
-	GetDlgItem(IDC_recognition)->EnableWindow(true);
-	GetDlgItem(IDC_classify)->EnableWindow(true);
+	GetDlgItem(IDC_recognition)->EnableWindow(false);
+	GetDlgItem(IDC_classify)->EnableWindow(false);
 }
 
 
@@ -341,71 +342,123 @@ void CdemoDlg::DrawImageResult(MVImage* img)
 	ReleaseDC(pDC);
 }
 
+
+void CdemoDlg::Add_color(MVImage* yimg, MVImage* gimg, MVImage* oimg)
+{
+
+	int w, h;
+	w = yimg->GetWidth();
+	h = yimg->GetHeight();
+
+	unsigned char* p = NULL;
+	p = (unsigned char*)yimg->GetBits();
+
+
+	MVImage yc_img,gc_img;
+	unsigned char* py = NULL;
+	py = (unsigned char*)yc_img.GetBits();
+
+	MVGrayToBGR(m_hCam, p, py, w, h);
+
+
+
+}
+
+
 int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 {
 	MVInfo2Image(m_hCam, pInfo, &m_image);
-	DrawImage(&m_image); //debugging
+	//DrawImage(&m_image); //debugging
 	
 	
-	//DrawImageResult(&grey_image);
+	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+	binary_th(&grey_image, thershold);
 
-	/*int cnt = count_num(&corrode_image);
-	CString str;
-	str.Format(_T("%d"), cnt);
-	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
-	/*corrode(&corrode_image, &corrode_mid_image, 1);
+	corrode(&grey_image, &corrode_mid_image, 0);
 	for (int i = 1; i <= c_epoch; i++)
 	{
-		corrode(&corrode_mid_image, &corrode_image, 1);
+		corrode(&corrode_mid_image, &corrode_image, 0);
 		img_copy(&corrode_image, &corrode_mid_image);
 	}
-	DrawImageResult(&corrode_image);*/
-	
-	/*int cnt = count_num(&corrode_image);
+	expand(&corrode_image, &expand_mid_image);
+	for (int i = 1; i <= e_epoch; i++)
+	{
+		expand(&expand_mid_image, &expand_image);
+		img_copy(&expand_image, &expand_mid_image);
+	}
+
+	img_copy(&expand_image, &yellow_image);//expand_image为黄豆图像
+	img_inv(&expand_image);
+
+	Subtraction(&grey_image, &expand_image, &green_image);
+	corrode(&green_image, &corrode_mid_image, 0);
+	for (int i = 1; i <= d_epoch; i++)
+	{
+		corrode(&corrode_mid_image, &green_image, 0);
+		img_copy(&green_image, &corrode_mid_image);
+	}
+	//green_image为绿豆图像
+	img_copy(&green_image, &cp_green_image);
+	img_copy(&yellow_image, &cp_yellow_image);
+	int cnt_gb = count_num(&green_image, &cp_green_image, 0);
+	int cnt_yb = count_num(&yellow_image, &cp_yellow_image, 1);
 	CString str;
-	str.Format(_T("%d"), cnt);
-	GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
-	
-		/*int w, h;
-		w = corrode_image.GetWidth();
-		h = corrode_image.GetHeight();
+	str.Format(_T("%d"), cnt_yb);
+	GetDlgItem(IDC_EDIT1)->SetWindowText((str));
+	str.Format(_T("%d"), cnt_gb);
+	GetDlgItem(IDC_EDIT2)->SetWindowText((str));
+	//DrawImageResult(&green_image);
 
-		unsigned char* p = NULL;
-		p = (unsigned char*)corrode_image.GetBits();
-		
-		int cnt1 = 0;
-		FILE* stream1;
-		freopen_s(&stream1, "test.out", "w", stdout);
-		for (int i = 0; i < h; i++)
-		{
-			for (int j = 0; j < w; j++)
-			{
-				if ((*p) == 0)
-				{
-					cnt1++;
-					//draw_Round(double(i - 10), double(j - 10), double(i + 10), double(j + 10));
-					printf("%d %d\n", i, j);
-				}
-				p++;
-			}
-		}*/
-		
-		/*CString str;
-		str.Format(_T("%d"), cnt);
-		GetDlgItem(IDC_EDIT1)->SetWindowText((str));*/
-		/*printf("%d\n", cnt1);
-		fclose(stdout);*/
+	//debug
+	/*DrawImage(&yellow_image);
+	DrawImageResult(&green_image);*/
 
-	
+	//MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 
-	/*CStatic* pEdit;//定义一个静态文本框实例
-	CRect rct(100, 100, 100 + 150, 100 + 50);//文本框大小
-	pEdit = new CStatic();//动态创建申请内存
-	pEdit->Create(str, WS_CHILD | WS_VISIBLE, rct, this, 8888);//动态创建
-	pEdit->ShowWindow(SW_SHOW);//显示在屏幕上*/
+	img_copy(&m_image, &final_image);
+	get_final(&m_image);
+	DrawImageResult(&final_image);
 
-	//DrawImageResult(&corrode_image);
-	//draw_Round(0, 0, 100, 100);
+	//get_final(&m_image);
+	/*img_copy(&green_image, &expand_mid_image);
+	expand(&expand_mid_image, &expand_image);
+	for (int i = 1; i <= e_epoch; i++)
+	{
+		expand(&expand_image, &expand_mid_image);
+		img_copy(&expand_mid_image, &expand_image);
+	}
+
+
+	unsigned char* p = NULL;
+	p = (unsigned char*)expand_image.GetBits();
+	unsigned char* py = NULL;
+	py = (unsigned char*)color_image.GetBits();
+	unsigned char* pt = NULL;
+	pt = (unsigned char*)yellow_image.GetBits();
+
+	show_weight(py, p, "red",0);
+	show_weight(py, pt, "green",1);
+
+	/*DrawImage(&m_image);
+	int w, h;
+	w = final_image.GetWidth();
+	h = final_image.GetHeight();
+
+	unsigned char* p = NULL;
+	p = (unsigned char*)final_image.GetBits();
+	unsigned char* py = NULL;
+	py = (unsigned char*)color_image.GetBits();
+
+	MVGrayToBGR(m_hCam, p, py, w, h);*/
+
+
+	//DrawImageResult(&color_image);
+
+
+
+
+
+
 	return 0;
 }
 int __stdcall StreamCB(MV_IMAGE_INFO* pInfo,ULONG_PTR nUserVal)
@@ -513,7 +566,7 @@ void CdemoDlg::OnBnClickedrecognition()
 		img_copy(&green_image, &corrode_mid_image);
 	}
 	//green_image为绿豆图像
-	
+	DrawImage(&green_image);
 	img_copy(&green_image,&cp_green_image);
 	img_copy(&yellow_image, &cp_yellow_image);
 	int cnt_gb = count_num(&green_image, &cp_green_image, 0);
@@ -531,8 +584,8 @@ void CdemoDlg::OnBnClickedrecognition()
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 	img_copy(&grey_image, &final_image);
 	get_final(&final_image);
-	DrawImageResult(&final_image);
-	
+	//DrawImageResult(&final_image);
+	DrawImage(&m_image); //debugging
 	//img_inv(&green_image);
 	//distance_trans(&corrode_image, &green_image, 1);
 	//binary_th(&green_image, dis_th);
@@ -548,7 +601,8 @@ void CdemoDlg::OnBnClickedclassify()
 	counter_detect(&grey_image, &counter_image);
 	MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 	Subtraction(&grey_image, &counter_image, &grey_counter_image);
-	DrawImageResult(&grey_counter_image);
+	//DrawImageResult(&grey_counter_image);
+	//DrawImage(&yellow_image); //debugging
 }
 
 void CdemoDlg::draw_Round(double x1, double y1, double x2, double y2)

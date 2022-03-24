@@ -1,14 +1,6 @@
-﻿  binary_th.cpp
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(337,35): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(338,35): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(352,35): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(353,35): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(571,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(573,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(575,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(577,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(597,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(599,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(601,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\binary_th.cpp(603,32): warning C4244: “=”: 从“double”转换到“int”，可能丢失数据
+﻿  demoDlg.cpp
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(613,32): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(613,29): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(613,25): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
+C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(613,21): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
   demo.vcxproj -> C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\x64\Debug\demo.exe

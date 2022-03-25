@@ -5,7 +5,9 @@
 
 //Function of Image
 void img_copy(MVImage* In_img, MVImage* Ou_img);
+void img_copy_col(MVImage* In_img, MVImage* Ou_img);
 void img_inv(MVImage* In_img);
+int img_comp_col(MVImage* In1_img, MVImage* In2_img);
 
 //阈值二值化函数
 void binary_th(MVImage* In, int th);

@@ -41,6 +41,7 @@ public:
 	HANDLE m_hCam;
 	//定义图像处理对象
 	MVImage m_image;
+	MVImage m_image_pre;
 	//定义处理过程中的图像
 	//In progress of finding the counter
 	MVImage grey_image;

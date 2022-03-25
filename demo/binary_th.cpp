@@ -11,12 +11,14 @@
 
 #define gth 15
 #define th_dis 120//100
+#define final_th 100000
 
 int vis[1300][1300];
 int q[NSMAX], qhd = 0, qtl = -1;
 int qp[NSMAX][2], pl = 0;
 int qg[DM][2], gcnt = 0;
 int qy[DM][2], ycnt = 0;
+
 
 void img_copy(MVImage* In_img, MVImage* Ou_img)
 {
@@ -32,6 +34,30 @@ void img_copy(MVImage* In_img, MVImage* Ou_img)
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)
+        {
+            unsigned char tmp;
+            tmp = *pi;
+            *po = tmp;
+            pi++;
+            po++;
+        }
+    }
+}
+
+void img_copy_col(MVImage* In_img, MVImage* Ou_img)
+{
+    int w, h;
+    w = In_img->GetWidth();
+    h = In_img->GetHeight();
+
+    unsigned char* pi = NULL;
+    unsigned char* po = NULL;
+    pi = (unsigned char*)In_img->GetBits();
+    po = (unsigned char*)Ou_img->GetBits();
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < 3 * w; j++)
         {
             unsigned char tmp;
             tmp = *pi;
@@ -62,6 +88,38 @@ void img_inv(MVImage* In_img)
             p++;
         }
     }
+}
+
+int img_comp_col(MVImage* In1_img, MVImage* In2_img)
+{
+    int w, h;
+    w = In1_img->GetWidth();
+    h = In1_img->GetHeight();
+
+    unsigned char* p1 = NULL;
+    unsigned char* p2 = NULL;
+    p1 = (unsigned char*)In1_img->GetBits();
+    p2 = (unsigned char*)In2_img->GetBits();
+
+    int cnt_sam = 0;
+
+    for (int i = 0; i < h; i++)
+    {
+        for (int j = 0; j < w; j++)
+        {
+            if (*p1 == *p2 &&
+                *(p1 + 1) == *(p2 + 1) &&
+                *(p1 + 2) == *(p2 + 2))
+            {
+                cnt_sam++;
+            }
+            p1+=3;
+            p2+=3;
+        }
+    }
+    //return cnt_sam;
+    if (cnt_sam >= final_th) return 1;
+    else return 0;
 }
 
 void binary_th(MVImage* In, int th)
@@ -423,7 +481,7 @@ void get_final(MVImage* In_img)
     unsigned char* p = NULL;
     p = (unsigned char*)In_img->GetBits();
 
-    for (int i = 0; i < h; i++)
+    /*for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)
         {
@@ -433,18 +491,18 @@ void get_final(MVImage* In_img)
             *(p + ps + 1) = 0;
             *(p + ps + 2) = 0;
         }
-    }
+    }*/
 
     for (int i = 0; i < gcnt; i++)
     {
         int px = qg[i][0], py = qg[i][1];
         int ps = (px * w + py)*3;
 
-        for (int j = 0; j < 60; j++)
+        for (int j = 0; j < 20; j++)
         {
-            for (int r = 0; r < 60; r++)
+            for (int r = 0; r < 20; r++)
             {
-                int s1 = ((j - 30) * w  + r - 30)*3;
+                int s1 = ((j - 10) * w  + r - 10)*3;
                 *(p + ps + s1) = 255;
                 *(p + ps + s1+1) = 0;
                 *(p + ps + s1+2) = 0;
@@ -458,11 +516,11 @@ void get_final(MVImage* In_img)
     {
         int px = qy[i][0], py = qy[i][1];
         int ps = (px * w + py) * 3;
-        for (int j = 0; j < 100; j++)
+        for (int j = 0; j < 30; j++)
         {
-            for (int r = 0; r < 100; r++)
+            for (int r = 0; r < 30; r++)
             {
-                int s1 = ((j - 50) * w + r - 50) * 3;
+                int s1 = ((j - 15) * w + r - 15) * 3;
                 *(p + ps + s1) = 0;
                 *(p + ps + s1 + 1) = 0;
                 *(p + ps + s1 + 2) = 255;

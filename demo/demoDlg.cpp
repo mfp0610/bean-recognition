@@ -383,7 +383,7 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 	freopen_s(&stream1, "test.out", "a", stdout);
 	printf("%d %d\n", time_cnt, comp);
 	fclose(stdout);*/
-	if (time_cnt == 0) //start time
+	/*if (time_cnt == 0) //start time
 	{
 		time_cnt++;
 		img_copy_col(&m_image, &m_image_pre);
@@ -409,12 +409,12 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 		img_copy_col(&m_image, &m_image_pre);
 
 		if (comp_pre != 1)
-		{
+		{*/
 			/*FILE* stream1;
 			freopen_s(&stream1, "test.out", "a", stdout);
 			printf("aa %d %d\n", time_cnt, comp);
 			fclose(stdout);*/
-			MVImageBGRToGray(m_hCam, &m_image, &grey_image);
+			//MVImageBGRToGray(m_hCam, &m_image, &grey_image);
 			binary_th(&grey_image, thershold);
 
 			corrode(&grey_image, &corrode_mid_image, 0);
@@ -448,13 +448,13 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 			int cnt_yb = count_num(&yellow_image, &cp_yellow_image, 1);
 			CString str;
 			str.Format(_T("%d"), cnt_yb);
-			GetDlgItem(IDC_EDIT1)->SetWindowText((str));
+			//GetDlgItem(IDC_EDIT1)->SetWindowText((str));
 			str.Format(_T("%d"), cnt_gb);
-			GetDlgItem(IDC_EDIT2)->SetWindowText((str));
-		}
+			//GetDlgItem(IDC_EDIT2)->SetWindowText((str));
+		/*}
 
 		comp_pre = 1;
-	}
+	}*/
 	img_copy_col(&m_image, &final_image);
 	get_final(&final_image);
 

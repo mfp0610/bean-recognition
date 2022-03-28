@@ -3,7 +3,7 @@
 #include "stdio.h"
 
 #define INF 0x7f7f7f
-#define NSMAX 1000010
+#define NSMAX 1300010
 #define DM 10000
 
 #define W 255
@@ -11,7 +11,7 @@
 
 #define gth 15
 #define th_dis 120//100
-#define final_th 100000
+#define final_th 126000
 
 int vis[1300][1300];
 int q[NSMAX], qhd = 0, qtl = -1;
@@ -503,8 +503,8 @@ void get_final(MVImage* In_img)
             for (int r = 0; r < 20; r++)
             {
                 int s1 = ((j - 10) * w  + r - 10)*3;
-                *(p + ps + s1) = 255;
-                *(p + ps + s1+1) = 0;
+                *(p + ps + s1) = 0;
+                *(p + ps + s1+1) = 255;
                 *(p + ps + s1+2) = 0;
 
 
@@ -521,9 +521,9 @@ void get_final(MVImage* In_img)
             for (int r = 0; r < 30; r++)
             {
                 int s1 = ((j - 15) * w + r - 15) * 3;
-                *(p + ps + s1) = 0;
+                *(p + ps + s1) = 255;
                 *(p + ps + s1 + 1) = 0;
-                *(p + ps + s1 + 2) = 255;
+                *(p + ps + s1 + 2) = 0;
             }
         }
         /*

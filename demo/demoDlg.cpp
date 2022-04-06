@@ -379,10 +379,7 @@ int CdemoDlg::OnStreamCB(MV_IMAGE_INFO* pInfo)
 	fclose(stdout);*/
 	int comp = img_comp_col(&m_image, &m_image_pre);
 
-	/*FILE* stream1;
-	freopen_s(&stream1, "test.out", "a", stdout);
-	printf("%d %d\n", time_cnt, comp);
-	fclose(stdout);*/
+	
 	/*if (time_cnt == 0) //start time
 	{
 		time_cnt++;

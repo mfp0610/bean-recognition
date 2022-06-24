@@ -330,8 +330,8 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
     else if (type==1)
         ycnt = 0;
     
-    int ret = 0;//·µ»ØÖµ
-    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };//±éÀúµÄ·½Ïò
+    int ret = 0;//ï¿½ï¿½ï¿½ï¿½Öµ
+    int dir[4][2] = { {-1,0},{0,-1},{0,1},{1,0} };//ï¿½ï¿½ï¿½ï¿½ï¿½Ä·ï¿½ï¿½ï¿½
 
     img_copy(In_img, cp_img);
 
@@ -353,7 +353,7 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
         {
             if ((*pc) == B)
             {
-                memset(vis, 0, sizeof(vis));//·ÃÎÊÊý×éÇå¿Õ
+                memset(vis, 0, sizeof(vis));//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 
                 int bs = i * w + j;
                 q[++qtl] = bs;
@@ -397,7 +397,7 @@ int count_num(MVImage* In_img, MVImage* cp_img, int type)
                     sumx /= pl;
                     sumy /= pl;
                     
-                    //È¥³ýÇÐ¸î¶Ïµã
+                    //È¥ï¿½ï¿½ï¿½Ð¸ï¿½Ïµï¿½
                     int flag = 0;
                     for (int i = 0; i < gcnt; i++)
                     {
@@ -551,7 +551,7 @@ void get_final(MVImage* In_img)
 
 }
 
-//µÃµ½Ò»¸öÏñËØµãÖÜÎ§3*3¾ØÕóµÄ×î´óµã
+//ï¿½Ãµï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½Øµï¿½ï¿½ï¿½Î§3*3ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 unsigned char get_max(unsigned char* p, int w, int h)
 {
     unsigned char max;
@@ -643,7 +643,7 @@ void distance_trans(MVImage* In_img, MVImage* Ou_img, int disty)
 }
 
 
-int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int type)//pDstÔ­Í¼£¬ptempÊÇ´¦Àíºó
+int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int type)//pDstÔ­Í¼ï¿½ï¿½ptempï¿½Ç´ï¿½ï¿½ï¿½ï¿½ï¿½
 {
 
     int i, j, channel = 0;
@@ -662,7 +662,7 @@ int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int
             }
         }
     }
-    //¹«Ê½ 
+    //ï¿½ï¿½Ê½ 
     if (strcmp(color, "red") == 0)
     {
         for (i = 0; i < 960; i++)
@@ -681,7 +681,7 @@ int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int
 
             }
 
-            //½«»Ò¶ÈÍ¼ÐÅÏ¢Ð´Èë
+            //ï¿½ï¿½ï¿½Ò¶ï¿½Í¼ï¿½ï¿½Ï¢Ð´ï¿½ï¿½
             //fwrite(ImgData2, j, 1, fp2);
         }
     }
@@ -703,7 +703,7 @@ int show_weight(unsigned char* pDst, unsigned char* ptemp, const char* color,int
 
             }
 
-            //½«»Ò¶ÈÍ¼ÐÅÏ¢Ð´Èë
+            //ï¿½ï¿½ï¿½Ò¶ï¿½Í¼ï¿½ï¿½Ï¢Ð´ï¿½ï¿½
             //fwrite(ImgData2, j, 1, fp2);
         }
     }

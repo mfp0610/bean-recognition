@@ -1,2 +1,6 @@
 demo/.vs/
 demo/.vscode/
+demo/x64
+
+# MAC Files
+*.DS_Store

@@ -1,6 +1,0 @@
-﻿  demoDlg.cpp
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(644,32): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(644,29): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(644,25): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\demoDlg.cpp(644,21): warning C4244: “参数”: 从“double”转换到“int”，可能丢失数据
-  demo.vcxproj -> C:\Users\Admin\source\repos\bean-recognition\bean-recognition\demo\x64\Debug\demo.exe
